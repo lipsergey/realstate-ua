@@ -102,14 +102,15 @@ if (!defined("ADMSEERENT")) {define("ADMSEERENT", 0);}
 if (!defined("ADMSEECOMMSALE")) {define("ADMSEECOMMSALE", 0);}
 if (!defined("ADMSEECOMMRENT")) {define("ADMSEECOMMRENT", 0);}
 
-if ((ADMSEESALE == 0 && ADMSEERENT == 0) || (ADMSEECOMMSALE == 0 && ADMSEECOMMRENT == 0)) {
+if (ADMSEESALE == 0 && ADMSEERENT == 0 && ADMSEECOMMSALE == 0 && ADMSEECOMMRENT == 0) {
 	echo "<h2>".__("TRNSL-NO-ACCESS")."</h2>";
 	die();
 }
 
-if (!defined("ADMGROUP") || ADMGROUP >= 2) {
+//if (!defined("ADMGROUP") || ADMGROUP >= 2) {
+//echo "<p>:: Sale: ".ADMSEESALE."; rent: ".ADMSEERENT."; comsale: ".ADMSEECOMMSALE."; comrent: ".ADMSEECOMMRENT."</p>";
 
-	if (ADMSEESALE == 1 && ADMSEERENT == 0) {
+	if ((ADMSEESALE == 1 && ADMSEERENT == 0) || (ADMSEESALE == 0 && ADMSEECOMMSALE == 1)) {
 		$SearchSQL .= " AND `ContractType`='1'";
 		if (ADMSEECOMMSALE == 1) {
 			$SearchSQL .= " AND `IsCommerce`='1'";
@@ -118,8 +119,8 @@ if (!defined("ADMGROUP") || ADMGROUP >= 2) {
 			$SearchSQL .= " AND `IsCommerce`='0'";
 		}
 	}
-	elseif (ADMSEESALE == 0 && ADMSEERENT == 1) {
-		$SearchSQL .=" AND `ContractType`='0'";
+	elseif ((ADMSEESALE == 0 && ADMSEERENT == 1) || (ADMSEERENT == 0 && ADMSEECOMMRENT == 1)) {
+		$SearchSQL .=" AND `ContractType`='2'";
 		if (ADMSEECOMMRENT == 1) {
 			$SearchSQL .= " AND `IsCommerce`='1'";
 		}
@@ -128,9 +129,8 @@ if (!defined("ADMGROUP") || ADMGROUP >= 2) {
 		}
 	}
 
+//echo "<p>".$SearchSQL."</p>";
 
-
-// || ADMSEESALE == 0 || ADMSEERENT == 0 || ADMSEECOMMSALE == 0
 
 /*
 //-------------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ if (!defined("ADMGROUP") || ADMGROUP >= 2) {
 		}
 	}
 	*/
-}
+//}
 
 //Инетрфейс для поиска объектов
 //<a href="#" onclick="ShowTab();"></a>

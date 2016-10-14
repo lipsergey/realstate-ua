@@ -18,17 +18,19 @@ $ObjInfo = mysqli_fetch_assoc($r);
 
 
 
-if ((ADMGROUP == 1 || ADMGROUP == 2) && ($ObjInfo["LnkRieltor"] == 0 || $ObjInfo["FriendRieltor"] == 0)) {
+if (((ADMGROUP == 1 || ADMGROUP == 2) && ($ObjInfo["LnkRieltor"] == 0 || $ObjInfo["FriendRieltor"] == 0)) ||
+	(ADMGROUP > 2 && $ObjInfo["LnkRieltor"] == 0 && $ObjInfo["FriendRieltor"] == 0)) {
 	echo __("TRNSL-CONTACTS-OWNER")." ".$ObjInfo["OwnerContacts"]."<hr>";
 }
-if ($ObjInfo["LnkRieltor"] > 0 && $ObjInfo["contacts"] != "") {
-	echo __("TRNSL-LINKED-RIELTOR").": ".$ObjInfo["uadm_fio"].", ".$ObjInfo["contacts"];
+if ($ObjInfo["LnkRieltor"] > 0 || $ObjInfo["FriendRieltor"] == 1) {
+	if ($ObjInfo["LnkRieltor"] > 0 && $ObjInfo["contacts"] != "") {
+		echo __("TRNSL-LINKED-RIELTOR").": ".$ObjInfo["uadm_fio"].", ".$ObjInfo["contacts"];
+	}
+	elseif($ObjInfo["FriendRieltor"] == 1) {
+		echo __("TRNSL-FRIEND-RIELTOR");
+	}
+	else {
+		echo __("TRNSL-NO-DATA");
+	}
 }
-elseif($ObjInfo["FriendRieltor"] == 1) {
-	echo __("TRNSL-FRIEND-RIELTOR");
-}
-else {
-	echo __("TRNSL-NO-DATA");
-}
-
 ?>

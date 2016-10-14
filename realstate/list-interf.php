@@ -20,18 +20,26 @@ echo "<h3>".__("TRNSL-LIST-ACTIVE-OBJ")."</h3>
   padding-top:20%;
   width:5%;
 }
+.bigtable {
+	width: auto !important;
+}
 </style>
-<table id=tabcont class=\"table table-bordered\" style=\"margin-left:10px;\">
+
+<table id=tabcont class=\"table table-bordered bigtable\" style=\"margin-left:10px;\">
 <thead>
 <tr style=\"background: silver; text-align:center;\">
 	<th>Дата</th>
 	<th>К</th>
-	<th>".__("TRNSL-OBJ-TYPE")."</th>
-	<th>Адреса</th>
+	<th>".__("TRNSL-OBJ-TYPE")."</th>\n";
+if (ADMGROUP == 1 || ADMGROUP == 2) {
+	echo "\t<th>".__("TRNSL-TRANS-TYPE")."</th>
+	<th>Comm</th>\n";
+}
+	echo "\t<th style=\"width:300px;\">Адреса</th>
 	<th>".__("TRNSL-FLOOR")."</th>
 	<th>".__("TRNSL-PRICE")."</th>
 	<th>".__("TRNSL-PREPAY")."</th>
-	<th>".__("TRNSL-OBJ-ANOTHER")."</th>
+	<th style=\"width:300px;\">".__("TRNSL-OBJ-ANOTHER")."</th>
 
 	<th>&nbsp;</th>
 </tr>
@@ -51,7 +59,7 @@ $r = mysqli_query($hlnk, "SELECT COUNT(*)
 FROM ".$ppt."relastate_live WHERE 1 ".$SearchSQL.";") or die ("Count obj :(");
 $ObjCnt = mysqli_fetch_row($r);
 if ($ObjCnt[0] == 0) {
-	echo "<tr><td colspan=9 align=center>".__("TRNSL-NO-OBJECT")."</td></tr>\n";
+	echo "<tr><td colspan=11 align=center>".__("TRNSL-NO-OBJECT")."</td></tr>\n";
 }
 else {
 	$PgSPis = $instances["pagelistener"]->MakePageBlock($ObjCnt[0], "", $ModURL.$SearchURL); //Get Page Spis
@@ -61,7 +69,7 @@ else {
 	FROM ".$ppt."relastate_live WHERE 1 ".$SearchSQL."
 	".$instances["pagelistener"]->MakeSQLLimitCode().";") or die ("Get objects IDs :(");
 	if (mysqli_num_rows($r) == 0) {
-		echo "<tr><td colspan=9 align=center>".__("TRNSL-NO-OBJECT")."</td></tr>\n";
+		echo "<tr><td colspan=11 align=center>".__("TRNSL-NO-OBJECT")."</td></tr>\n";
 	}
 	else {
 		$ObjIDs = array();
@@ -85,25 +93,30 @@ else {
 		FROM ".$ppt."relastate_live WHERE Object_ID IN (".implode(",", $ObjIDs).") ".$SearchSQL."
 		ORDER BY Object_Date DESC;") or die ("Get list of objects :(");
 		if ($PgSPis != "") {
-			echo "<tr><td colspan=9>".$PgSPis."</td></tr>\n";
+			echo "<tr><td colspan=11>".$PgSPis."</td></tr>\n";
 		}
 		while ($SpisObjects = mysqli_fetch_assoc($r)) {
 			$CurSTR = ((isset($SpisObjects["Object_Rajon"]) && isset($AllRajons[$SpisObjects["Object_Rajon"]])) ? $AllRajons[$SpisObjects["Object_Rajon"]].", " : "").((isset($SpisObjects["Object_Street"]) && isset($AllStreets[$SpisObjects["Object_Street"]])) ? $AllStreets[$SpisObjects["Object_Street"]].", " : "") . $SpisObjects["Object_Addr"];
 			echo "<tr>
 				<td>".$SpisObjects["OBJDT"]."</td>
 				<td>".$SpisObjects["NumbOfRooms"]."</td>
-				<td>".__($ObjTypes[$SpisObjects["Object_Type"]])."</td>
-				<td>".$CurSTR."</td>
+				<td>".__($ObjTypes[$SpisObjects["Object_Type"]])."</td>\n";
+			if (ADMGROUP == 1 || ADMGROUP == 2) {
+				echo "\t\t\t\t\t<td>".($SpisObjects["ContractType"] == 1 ? __("TRNSL-SEE-SALE") : __("TRNSL-SEE-RENT"))."</td>
+				<td>".__($UserAccSel[$SpisObjects["IsCommerce"]])."</td>\n";
+			}
+
+			echo "\t\t\t\t\t<td style=\"width:300px;\">".$CurSTR."</td>
 				<td>".$SpisObjects["Floor"]."/".$SpisObjects["NumbOfFloors"]."</td>
 				<td>".$SpisObjects["Object_Price"]." ".$ValutChars[$SpisObjects["Price_Valut"]]."</td>
 				<td>".($SpisObjects["Predopalt"] != "" ? (is_numeric($SpisObjects["Predopalt"]) ? $SpisObjects["Predopalt"] . " ". $ValutChars[$SpisObjects["Predopalt_Valut"]] : $SpisObjects["Predopalt"]) : "&nbsp;")."</td>
-				<td>".((isset($SpisObjects["OtherInf"]) && $SpisObjects["OtherInf"] != "") ? "".$SpisObjects["OtherInf"]."<br />" : "&nbsp;")."</td>
+				<td style=\"width:300px;\"><div class=\"objdopinf\">".((isset($SpisObjects["OtherInf"]) && $SpisObjects["OtherInf"] != "") ? "".$SpisObjects["OtherInf"]."<br />" : "&nbsp;")."</div></td>
 				<td>
 				".((ADMGROUP == 1 || ADMGROUP == 2) ? '<input type="button" value="Edit" class="btn btn-warning" style="margin-left:10px;" onclick="document.location.href=\''.$ModURL.'&modact=editobj&objid='.$SpisObjects["Object_ID"].'\'"><br />' : "")."
 				<input type=\"button\" value=\"View\" class=\"btn btn-info\" style=\"margin-left:10px;\" onclick=\"DopInfo(".$SpisObjects["Object_ID"].");return false;\">
 				</td>
 			</tr>
-			<tr><td colspan=10>
+			<tr><td colspan=11>
 				<table id=\"tabcont".$SpisObjects["Object_ID"]."\" class=\"table table-bordered addoninfo\" style=\"display: none;\">
 				<tr>
 					<td>
@@ -163,7 +176,7 @@ else {
 			</td></tr>\n";
 		}
 		if ($PgSPis != "") {
-			echo "<tr><td colspan=10>".$PgSPis."</td></tr>\n";
+			echo "<tr><td colspan=11>".$PgSPis."</td></tr>\n";
 		}
 	}
 }
@@ -173,11 +186,13 @@ else {
 echo '</tbody></table>
 <link href="css/colorbox.css" rel="stylesheet">
 <script src="js/jquery.colorbox.js"></script>
+<script src="js/readmore.js"></script>
 <script>
 $(document).ready(function(){
 //	$("#tabcont").tablesorter({widgets: ["zebra"]}).tablesorterPager({container: $("#pager"), size: 100});
 	$(".objcarusel").carousel("pause");
 	$(".ajax").colorbox();
+	$(".objdopinf").readmore();
 });
 ';
 foreach($ImgJS as $tObjID) {
